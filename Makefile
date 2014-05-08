@@ -1,5 +1,5 @@
 #
-#  Default to 32-bit code
+#  Default to 64-bit code
 #
 BITS     ?= 64
 
@@ -17,7 +17,7 @@ LDFLAGS   = -m$(BITS) -lrt
 #  This code needs to see the libitm.h file, so provide a path
 #  here... individual users may need to override it
 #
-MY_LIBITM ?= /home/spear/gcc/src/gcc_trunk/libitm/
+MY_LIBITM ?= /home/chao/gcc/src/gcc_trunk/libitm/
 CXXFLAGS += -I$(MY_LIBITM)
 
 #
