@@ -27,9 +27,17 @@ namespace
   __attribute__((transaction_pure))
   void register_handler(int (*func)(void*), void* arg)
   {
-      if(_ITM_inTransaction() == outsideTransaction)
-          func(arg);
-      else
+/* current version of _ITM_inTransaction() do not support htm. whenever this
+   function is called with htm transaction, it just aborts and fall back to
+   stm mode. For details, see libitm/query.c
+   Since in this condvar library we *ALWAYS* call this register_handler inside
+   transaction scope, so we ellide this function call until later time when we
+   have a correct _ITM_inTransaction support htm. This change will not affect
+   the correctness of this condvar library.
+*/
+//      if(_ITM_inTransaction() == outsideTransaction)
+//          func(arg);
+//      else
           _ITM_addUserCommitAction((_ITM_userCommitFunction)func,
                                    _ITM_noTransactionId, arg);
   }
@@ -146,7 +154,7 @@ void cond_var_t::cond_wait(pthread_mutex_t* lock /* = NULL */)
     my_semaphore->prev = NULL;
 
     // [mfs] Invariant: my_semaphore->semaphore has a count of zero
-    __transaction_atomic {
+//    __transaction_atomic {
         // enqueue my node, with special case for empty queue
         if (tail == NULL && head == NULL) {
             head = tail = my_semaphore;
@@ -159,7 +167,7 @@ void cond_var_t::cond_wait(pthread_mutex_t* lock /* = NULL */)
         // just in case this isn't the outermost transaction, register a
         // commit handler here.
 	register_handler(cond_wait_delayed, (void*)lock);
-    }
+//    }
 }
 
 /**
@@ -172,7 +180,7 @@ void cond_var_t::cond_wait(pthread_mutex_t* lock /* = NULL */)
 __attribute__((transaction_safe))
 void cond_var_t::cond_signal()
 {
-    __transaction_atomic {
+//    __transaction_atomic {
         // if the queue is empty, return early
         sem_node_t* sn = head;
         if (sn == NULL)
@@ -191,7 +199,7 @@ void cond_var_t::cond_signal()
         // DIAGNOSTICS
         my_semaphore->signals++;
 #endif
-    }
+//    }
 }
 
 /**
