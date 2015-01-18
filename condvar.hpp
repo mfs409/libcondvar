@@ -145,6 +145,4 @@ class cond_var_t
 
 };
 
-
-
 #endif // CONDVAR_HPP__
