@@ -91,6 +91,7 @@ void cv_thread_init (void);
 /**
 *  Initialize a condvar
 */
+__attribute__((transaction_safe))
 void cv_init_cond_var (cv_cond_var_t* cv);
 
 /**
